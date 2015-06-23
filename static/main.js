@@ -1,6 +1,11 @@
 google.setOnLoadCallback(main);
 
 
+function toReadableDate(date) {
+  return "on "+date.toDateString()+" at "+date.getHours()+":"+date.getMinutes();
+}
+
+
 function makeChart(container, raceId, numRacers) {
   var chart = new google.visualization.Timeline(container);
   var dataTable = new google.visualization.DataTable();
@@ -10,6 +15,7 @@ function makeChart(container, raceId, numRacers) {
   dataTable.addColumn({ type: 'date', id: 'Start' });
   dataTable.addColumn({ type: 'date', id: 'End' });
   var fetched = 0;
+  var geocoder = new google.maps.Geocoder();
 
   return {
     showBreaks: function(racerName) {
@@ -18,8 +24,11 @@ function makeChart(container, raceId, numRacers) {
        */
       $.getJSON("/breaks/"+raceId+"?name="+racerName, function(feed) {
         feed.breaks.forEach(function(brk) {
-          var tooltip = "Druation: "+brk.duration;
-          dataTable.addRow([racerName, "", tooltip, new Date(brk.start), new Date(brk.end)]);
+          // TODO add break location
+          var start = new Date(brk.start),
+            end = new Date(brk.end);
+          var tooltip = racerName+" stopped for "+brk.duration+" "+toReadableDate(start);
+          dataTable.addRow([racerName, "", tooltip, start, end]);
         });
 
         fetched += 1;
