@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# run with gunicorn
+gunicorn web:app -w 88 --worker-class gevent -b $1
