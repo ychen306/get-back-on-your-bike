@@ -60,9 +60,14 @@ def to_readable_duration(duration):
     '''
     convert a timedelta into a human-friendly string (hh:mm:ss)
     '''
-    minutes, seconds = divmod(duration.total_seconds(), 60)
+    minutes, _ = divmod(duration.total_seconds(), 60)
     hours, minutes = divmod(minutes, 60)
-    return "%s hours, %s minutes, and %s seconds"% (int(hours), int(minutes), int(seconds)) 
+    readable = []
+    if hours != 0:
+        readable.append("%d hours"% hours)
+    if minutes != 0:
+        readable.append("%d minutes"% minutes)
+    return " and ".join(readable)
 
 
 def get_breaks(race, racer_id):

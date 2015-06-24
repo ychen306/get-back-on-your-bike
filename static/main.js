@@ -2,7 +2,21 @@ google.setOnLoadCallback(main);
 
 
 function toReadableDate(date) {
-  return "on "+date.toDateString()+" at "+date.getHours()+":"+date.getMinutes();
+  var hours = date.getHours().toString(),
+      minutes = date.getMinutes().toString();
+  if (minutes.length == 1) {
+    minutes = "0"+minutes;
+  }
+  return date.toDateString()+" at "+hours+":"+minutes;
+}
+
+
+function createToolTip(brk) {
+  var start = new Date(brk.start);
+  return "<div style='padding:5px 5px 5px 5px; width: 250px;'>"+
+            "<b>How long</b>:&nbsp;"+brk.duration+"<br/>"+
+            "<b>When</b>:&nbsp;"+toReadableDate(start)+"<br/>"+
+          "</div>";
 }
 
 
@@ -11,7 +25,7 @@ function makeChart(container, raceId, numRacers) {
   var dataTable = new google.visualization.DataTable();
   dataTable.addColumn({ type: 'string', id: 'Name' });
   dataTable.addColumn({ type: 'string', id: 'whatever' });
-  dataTable.addColumn({ type: 'string', role: "tooltip" });
+  dataTable.addColumn({ type: 'string', role: 'tooltip', p: {html: true}});
   dataTable.addColumn({ type: 'date', id: 'Start' });
   dataTable.addColumn({ type: 'date', id: 'End' });
   var fetched = 0;
@@ -27,7 +41,8 @@ function makeChart(container, raceId, numRacers) {
           // TODO add break location
           var start = new Date(brk.start),
             end = new Date(brk.end);
-          var tooltip = racerName+" stopped for "+brk.duration+" "+toReadableDate(start);
+          //var tooltip = racerName+" stopped for "+brk.duration+" "+toReadableDate(start);
+          var tooltip = createToolTip(brk);
           dataTable.addRow([racerName, "", tooltip, start, end]);
         });
 
@@ -42,7 +57,8 @@ function makeChart(container, raceId, numRacers) {
         var options = {
           // magic
           height: numRacers * 50 + 30,
-          timeline: {singleColor: '#8d8'}
+          timeline: {singleColor: '#8d8'},
+          tooltip: {isHtml: true}
         };
         $('.google-visualization-tooltip').remove();
         chart.draw(dataTable, options);
