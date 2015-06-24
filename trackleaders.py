@@ -60,8 +60,8 @@ def to_readable_duration(duration):
     '''
     convert a timedelta into a human-friendly string (hh:mm:ss)
     '''
-    compact_time = time.strftime('%H:%M:%S', time.gmtime(duration.total_seconds())) 
-    hours, minutes, seconds = compact_time.split(':')
+    minutes, seconds = divmod(duration.total_seconds(), 60)
+    hours, minutes = divmod(minutes, 60)
     return "%s hours, %s minutes, and %s seconds"% (hours, minutes, seconds) 
 
 
