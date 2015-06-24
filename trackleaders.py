@@ -62,7 +62,7 @@ def to_readable_duration(duration):
     '''
     minutes, seconds = divmod(duration.total_seconds(), 60)
     hours, minutes = divmod(minutes, 60)
-    return "%s hours, %s minutes, and %s seconds"% (hours, minutes, seconds) 
+    return "%s hours, %s minutes, and %s seconds"% (int(hours), int(minutes), int(seconds)) 
 
 
 def get_breaks(race, racer_id):
