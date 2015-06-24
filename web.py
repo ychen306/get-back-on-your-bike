@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, Response, render_template
 from trackleaders import get_breaks, get_racer_id, get_racers, get_race_name
+from config import GOOGLE_API_KEY
 
 app = Flask(__name__)
 
@@ -10,7 +11,8 @@ BAD_REQUEST = Response(status='405')
 def home(race_id):
     return render_template('index.html',
             race_id=race_id,
-            race_name=get_race_name(race_id))
+            race_name=get_race_name(race_id),
+            api_key=GOOGLE_API_KEY)
 
 
 @app.route('/breaks/<race_id>')
