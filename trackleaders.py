@@ -39,7 +39,7 @@ def parse_timestamps(racer_id, spot_feed):
 
 def get_racer_id(racer_name):
     components = re.split('\W', racer_name)
-    return '_'.join(c.capitalize() for c in components)
+    return '_'.join(c for c in components)
 
 
 def make_datetime_converter():
