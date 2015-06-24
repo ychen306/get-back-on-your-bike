@@ -13,8 +13,8 @@ TL_URL_TEMPL = "http://trackleaders.com/%sf.php"
 # RE for parsing spot position (latLong pair)
 SPOT_POS_RE = re.compile(r'\);point = new google.maps.LatLng\( (?P<latitude>[\-\d.]+), (?P<longitude>[\-\d.]+)\)')
 USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
-# icons trackleaders used for moving dots
-REGULAR_ICONS = ('iconDot', 'iconDotGray')
+# icons trackleaders used for stopped dots
+STOP_ICONS = ('iconStop', 'iconTent')
 
 
 def process_timestamp(ts_match):
@@ -76,7 +76,7 @@ def get_breaks(race, racer_id):
     positions = list(SPOT_POS_RE.finditer(spot_feed, re.MULTILINE))
     breaks = []
     for i, ts in enumerate(timestamps):
-        if ts['icon'] in REGULAR_ICONS or i == len(timestamps) - 1:
+        if ts['icon'] not in STOP_ICONS or i == len(timestamps) - 1:
             continue
         matched_pos = positions[i] 
         break_start, break_end = as_date(ts), as_date(timestamps[i+1])
