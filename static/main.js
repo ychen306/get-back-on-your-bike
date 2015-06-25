@@ -49,7 +49,7 @@ function makeChart(container, raceId, numRacers) {
       var ok = cached[1];
       callback(results, ok);
     } else {
-      var url = GOOGLE_REV_GEOCODE_URL+"?latlng="+latlng+"&key="+api_key;
+      var url = GOOGLE_REV_GEOCODE_URL+"?latlng="+latlng;
       return $.getJSON(url, function(resp) {
         var ok = (resp.results != undefined && resp.results.length > 0);
         // save to cache
