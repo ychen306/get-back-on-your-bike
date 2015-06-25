@@ -28,7 +28,7 @@ function makeChart(container, raceId, numRacers) {
   var chart = new google.visualization.Timeline(container);
   var dataTable = new google.visualization.DataTable();
   dataTable.addColumn({ type: 'string', id: 'Name' });
-  dataTable.addColumn({ type: 'string', id: 'whatever' });
+  dataTable.addColumn({ type: 'string', id: 'TotalDuration' });
   dataTable.addColumn({ type: 'string', role: 'tooltip', p: {html: true}});
   dataTable.addColumn({ type: 'date', id: 'Start' });
   dataTable.addColumn({ type: 'date', id: 'End' });
@@ -97,11 +97,15 @@ function makeChart(container, raceId, numRacers) {
     var options = {
       // magic
       height: numRacers * 50 + 30,
-      timeline: {singleColor: '#8d8'},
-      tooltip: {isHtml: true}
+      timeline: {
+        singleColor: '#8d8',
+        showBarLabels: false
+      },
+      tooltip: {isHtml: true},
     };
     $('.google-visualization-tooltip').remove();
     google.visualization.events.addListener(chart, 'onmouseover', handleMouseover);
+    dataTable.sort(1);
     chart.draw(dataTable, options);
     // done, remove progress bar
     if (numFetched == numRacers) {
@@ -119,13 +123,10 @@ function makeChart(container, raceId, numRacers) {
           var start = new Date(brk.start),
               end = new Date(brk.end);
           var loc = brk.lat+", "+brk.lng;
-          // there's only one spot/break for any racer at a given location
-          // so the pair of racer name and a location should be unique,
-          // giving a valid id for a break
           var breakId = racerName.replace(" ", "-")+"*"+brk.lat+","+brk.lng;
           var tooltip = createToolTip(brk, loc, breakId);
           breakCache[breakId] = brk;
-          dataTable.addRow([racerName, "", tooltip, start, end]);
+          dataTable.addRow([racerName, feed.totalDuration.toString(), tooltip, start, end]);
         });
 
         updateChart();

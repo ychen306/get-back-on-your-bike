@@ -21,12 +21,13 @@ def show_breaks(race_id):
         return BAD_REQUEST
     racer_name = request.args['name']
     racer_id = get_racer_id(racer_name)
-    breaks = get_breaks(race_id, racer_id)
+    breaks, tot_duration = get_breaks(race_id, racer_id)
     feed = {
         'raceId': race_id,
         'racerId': racer_id,
         'racerName': racer_name, 
-        'breaks': breaks
+        'breaks': breaks,
+        'totalDuration': int(tot_duration)
     }
     return jsonify(feed)
 

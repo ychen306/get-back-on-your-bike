@@ -60,7 +60,7 @@ def to_readable_duration(duration):
     '''
     convert a timedelta into a human-friendly string (hh:mm:ss)
     '''
-    minutes, _ = divmod(duration.total_seconds(), 60)
+    minutes, _ = divmod(duration, 60)
     hours, minutes = divmod(minutes, 60)
     readable = []
     if hours != 0:
@@ -80,22 +80,28 @@ def get_breaks(race, racer_id):
     timestamps = parse_timestamps(racer_id, spot_feed)
     positions = list(SPOT_POS_RE.finditer(spot_feed, re.MULTILINE))
     breaks = []
+    tot_duration = 0
     for i, ts in enumerate(timestamps):
         if ts['icon'] not in STOP_ICONS or i == len(timestamps) - 1:
             continue
         matched_pos = positions[i] 
         break_start, break_end = as_date(ts), as_date(timestamps[i+1])
-        duration = to_readable_duration(break_end-break_start)
+        duration = (break_end - break_start).total_seconds()
+        readable_duration = to_readable_duration(duration)
+        tot_duration += duration
         lat = float(matched_pos.group('latitude'))
         lng = float(matched_pos.group('longitude'))
         breaks.append({
             'start': break_start.isoformat(),
             'end': break_end.isoformat(),
-            'duration': duration,
+            'duration': readable_duration,
             'lat': lat,
             'lng': lng
         })
-    return breaks 
+    # calculate percentage
+    for brk in breaks:
+        brk['duration'] += ' (out of %s)'% to_readable_duration(tot_duration)
+    return breaks, tot_duration
 
 
 def get_racers(race_id):
