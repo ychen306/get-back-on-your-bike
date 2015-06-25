@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, Response, render_template
+import subprocess
 from trackleaders import get_breaks, get_racer_id, get_racers, get_race_name
 
 app = Flask(__name__)
@@ -6,11 +7,22 @@ app = Flask(__name__)
 BAD_REQUEST = Response(status='405')
 
 
+def get_commit_hash():
+    '''
+    get git commit hash
+    '''
+    return subprocess.Popen(['git', 'rev-parse', 'HEAD'], stdout=subprocess.PIPE).\
+            stdout.\
+            readline().\
+            strip()
+
+
 @app.route('/<race_id>')
 def home(race_id):
     return render_template('index.html',
             race_id=race_id,
-            race_name=get_race_name(race_id))
+            race_name=get_race_name(race_id),
+            git_hash=get_commit_hash())
 
 
 @app.route('/breaks/<race_id>')
