@@ -1,8 +1,13 @@
 from flask import Flask, request, jsonify, Response, render_template
 from hashlib import md5
 from trackleaders import get_breaks, get_racer_id, get_racers, get_race_name
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut, GeocoderServiceError
+from config import REDIS_HOST, REDIS_PORT
+import redis
 
 app = Flask(__name__)
+sr = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 BAD_REQUEST = Response(status='405')
 
@@ -47,6 +52,36 @@ def show_racers(race_id):
         'racers': get_racers(race_id)
     }
     return jsonify(feed)
+
+
+@app.route('/geocode/<lat>,<lng>')
+def geocode(lat, lng):
+    endp = "%s,%s" % (lat, lng)
+    if sr.exists(endp):
+        return format_geocode_response(sr.get(endp))
+
+    geolocator = get_geocoder()
+    try:
+        location = locate(endp, geolocator)
+    except GeocoderTimedOut:
+        location = locate(endp, get_geocoder())
+
+    addr = location.address
+    sr.set(endp, addr)
+    return format_geocode_response(addr)
+
+def locate(latlng, geolocator):
+    return geolocator.reverse(latlng, exactly_one=True)
+
+def format_geocode_response(addr):
+    return jsonify({
+        'results' : [{
+            'formatted_address' : addr
+        }]
+    })
+
+def get_geocoder():
+    return Nominatim()
 
 
 if __name__ == '__main__':
