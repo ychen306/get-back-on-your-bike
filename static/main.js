@@ -1,6 +1,6 @@
 google.setOnLoadCallback(main);
 
-var GOOGLE_REV_GEOCODE_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
+//var GOOGLE_REV_GEOCODE_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
 
 
 function toReadableDate(date) {
@@ -49,7 +49,8 @@ function makeChart(container, raceId, numRacers) {
       var ok = cached[1];
       callback(results, ok);
     } else {
-      var url = GOOGLE_REV_GEOCODE_URL+"?latlng="+latlng;
+      //var url = GOOGLE_REV_GEOCODE_URL+"?latlng="+latlng;
+      var url = '/geocode/'+latlng;
       return $.getJSON(url, function(resp) {
         var ok = (resp.results != undefined && resp.results.length > 0);
         // save to cache

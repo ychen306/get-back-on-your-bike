@@ -10,9 +10,8 @@
 
 ga('create', 'UA-64449271-1', 'auto');
 ga('send', 'pageview');
-
 </script>
-<!-- put config variables here -->
+<title>{{ race_id }} visualization</title>
 <script>
 var raceId = "{{ race_id }}";
 </script>
@@ -20,6 +19,7 @@ var raceId = "{{ race_id }}";
 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <script src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1.1','packages':['timeline']}]}"></script>
 <script src="/static/main.js?x={{ main_digest }}"></script> 
@@ -44,48 +44,4 @@ var raceId = "{{ race_id }}";
   </div>
 </footer>
 </body>
-
-<!-- copied from here http://getbootstrap.com/examples/sticky-footer-navbar/sticky-footer-navbar.css -->
-<style>
-/* Sticky footer styles
--------------------------------------------------- */
-html {
-    position: relative;
-      min-height: 100%;
-}
-body {
-    /* Margin bottom by footer height */
-    margin-bottom: 60px;
-}
-.footer {
-    position: absolute;
-      bottom: 0;
-        width: 100%;
-          /* Set the fixed height of the footer here */
-          height: 60px;
-            background-color: #f5f5f5;
-}
-
-
-/* Custom page CSS
--------------------------------------------------- */
-/* Not required for template or sticky footer method. */
-
-body > .container {
-    padding: 60px 15px 0;
-}
-.container .text-muted {
-    margin: 20px 0;
-}
-
-.footer > .container {
-    padding-right: 15px;
-      padding-left: 15px;
-}
-
-code {
-    font-size: 80%;
-}
-</style>
-
 </html> 
