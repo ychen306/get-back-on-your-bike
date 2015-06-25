@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, Response, render_template
-import subprocess
+from hashlib import md5
 from trackleaders import get_breaks, get_racer_id, get_racers, get_race_name
 
 app = Flask(__name__)
@@ -7,14 +7,12 @@ app = Flask(__name__)
 BAD_REQUEST = Response(status='405')
 
 
-def get_commit_hash():
+def digest(fname):
     '''
-    get git commit hash
+    get mp5 digest of a file
     '''
-    return subprocess.Popen(['git', 'rev-parse', 'HEAD'], stdout=subprocess.PIPE).\
-            stdout.\
-            readline().\
-            strip()
+    with open(fname) as target:
+        return md5(target.read()).hexdigest()
 
 
 @app.route('/<race_id>')
@@ -22,7 +20,7 @@ def home(race_id):
     return render_template('index.html',
             race_id=race_id,
             race_name=get_race_name(race_id),
-            git_hash=get_commit_hash())
+            main_digest=digest('static/main.js'))
 
 
 @app.route('/breaks/<race_id>')
