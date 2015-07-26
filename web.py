@@ -6,6 +6,8 @@ app = Flask(__name__)
 
 BAD_REQUEST = Response(status='405')
 
+MAX_NUM_LEN = 20
+
 
 def digest(fname):
     '''
@@ -35,7 +37,7 @@ def show_breaks(race_id):
         'racerId': racer_id,
         'racerName': racer_name, 
         'breaks': breaks,
-        'totalDuration': int(tot_duration)
+        'totalDuration': to_comparablee_string(tot_duration)
     }
     return jsonify(feed)
 
@@ -47,6 +49,11 @@ def show_racers(race_id):
         'racers': get_racers(race_id)
     }
     return jsonify(feed)
+
+
+def to_comparablee_string(num):
+    s = str(int(num))
+    return '0'*(MAX_NUM_LEN - len(s))+s
 
 
 if __name__ == '__main__':

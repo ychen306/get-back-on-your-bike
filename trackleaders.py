@@ -87,20 +87,23 @@ def get_breaks(race, racer_id):
         matched_pos = positions[i] 
         break_start, break_end = as_date(ts), as_date(timestamps[i+1])
         duration = (break_end - break_start).total_seconds()
-        readable_duration = to_readable_duration(duration)
         tot_duration += duration
         lat = float(matched_pos.group('latitude'))
         lng = float(matched_pos.group('longitude'))
         breaks.append({
             'start': break_start.isoformat(),
             'end': break_end.isoformat(),
-            'duration': readable_duration,
+            'duration': duration,
             'lat': lat,
             'lng': lng
         })
     # calculate percentage
     for brk in breaks:
-        brk['duration'] += ' (out of %s)'% to_readable_duration(tot_duration)
+        dur = brk['duration']
+        brk['duration'] = '%s (%.2f%% of %s)'% (
+                to_readable_duration(dur), 
+                dur/tot_duration*100,
+                to_readable_duration(tot_duration))
     return breaks, tot_duration
 
 
