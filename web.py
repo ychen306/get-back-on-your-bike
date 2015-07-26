@@ -8,6 +8,7 @@ BAD_REQUEST = Response(status='405')
 
 MAX_NUM_LEN = 20
 
+# TODO use redis to cache stuff
 
 def digest(fname):
     '''

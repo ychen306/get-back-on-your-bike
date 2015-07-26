@@ -15,6 +15,7 @@ function toReadableDate(date) {
 
 function createToolTip(brk, loc, breakId) {
   var start = new Date(brk.start);
+  // TODO dynamically calculate hieght base on length of display
   var tooltipStyle = 'padding:5px 5px 5px 5px; width: 220px; height: 100px;'
     return "<div class='break-display' id='"+breakId+"' style='"+tooltipStyle+"'>"+
     "<b>How long</b>:&nbsp;"+brk.duration+"<br/>"+
