@@ -12,7 +12,7 @@ BAD_REQUEST = Response(status='405')
 MAX_NUM_LEN = 20
 MAIN_DIGEST = util.digest('static/main.js')
 # 10 minutes
-REDIS_EXPR = 600
+CACHE_DUR = 600
 R = redis.Redis(host=config.REDIS_HOST, port=config.REDIS_PORT)
 
 
@@ -29,7 +29,8 @@ def cache_json(view):
             resp = Response(cached, content_type='application/json')
         else:
             resp = view(*args, **kwargs)
-            R.setex(request.url, resp.data, REDIS_EXPR)
+            R.setex(request.url, resp.data, CACHE_DUR)
+        resp.cache_control.max_age = CACHE_DUR
         return resp
 
     return decorated_view
