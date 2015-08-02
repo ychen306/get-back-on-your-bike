@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# redis  
+*.rdb
+
 # vim temp file
 *.swp
 
