@@ -148,7 +148,7 @@ function makeChart(container, raceId, numRacers) {
         $.getJSON("/breaks/"+raceId+"?name="+racerName, function(feed) { 
             feed.breaks.forEach(function(brk) {
                 // TODO remove these two lines to avoid data duplication
-                brk.totalDuration=feed.totalDuration;
+                brk.totalDuration = feed.totalDuration;
                 brk.racerName = racerName;
                 var breakId = racerName.replace(" ", "-")+"*"+brk.lat+","+brk.lng;
                 breakCache[breakId] = brk;
@@ -163,7 +163,6 @@ function makeChart(container, raceId, numRacers) {
         matcher = racerName === "" ?
             null :
             makeRacerNameRe(racerName);
-        console.log('searching with regexp '+matcher);
         dataTable.removeRows(0, dataTable.getNumberOfRows()); 
         for (var breakId in breakCache) { 
             addBreak(breakId);
@@ -187,10 +186,17 @@ function plot(raceId) {
             chart.showBreaks(feed.racers[i]);
         }
         // handle search
+        // only search - 40 ms after the user finishes typing
+        // to reduce unnecessary type
+        var searchEvent;
         $('#search-input').on('input', function () { 
             var searchedName = $(this).val();
-            console.log('Searching '+searchedName);
-            chart.filterByName(searchedName.trim());
+            if (searchEvent) {
+                clearTimeout(searchEvent);
+            }
+            searchEvent = setTimeout(function () {
+                chart.filterByName(searchedName.trim());
+            }, 40);
         });
     });
 }
