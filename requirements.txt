@@ -3,3 +3,4 @@ lxml
 gevent
 gunicorn
 redis
+requests
