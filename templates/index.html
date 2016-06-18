@@ -39,7 +39,7 @@
                         <span class="input-group-btn">
                             <span class="btn btn-default">Search racers</span>
                         </span>
-                        <input id="search-input" type="text" class="form-control" placeholder="Search for racer">
+                        <input id="search-input" type="text" class="form-control" {% if query %}value="{{query}}"{% endif %} placeholder="Search for racer">
                     </div>
                 </div>
             </div><br/>

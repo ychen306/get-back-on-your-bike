@@ -34,12 +34,13 @@ def cache_json(view):
     return decorated_view
 
 
-
 @app.route('/<race_id>')
 def home(race_id):
+    race_id = race_id.split('#')[0]
     return render_template('index.html',
             race_id=race_id,
             race_name=get_race_name(race_id),
+            query=request.args.get('q'),
             main_digest=MAIN_DIGEST)
 
 
