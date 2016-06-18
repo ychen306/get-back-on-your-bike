@@ -2,4 +2,3 @@ flask
 lxml
 gevent
 gunicorn
-redis
