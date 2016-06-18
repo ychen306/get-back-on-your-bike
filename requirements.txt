@@ -2,4 +2,4 @@ flask
 lxml
 gevent
 gunicorn
-pysqlite
+redis
