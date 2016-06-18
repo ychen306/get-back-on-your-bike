@@ -14,7 +14,7 @@ MAX_NUM_LEN = 20
 MAIN_DIGEST = util.digest('static/main.js')
 # 30 minutes
 CACHE_DUR = 1800
-R = redis.from_url(os.environ.get("REDIS_URL", "redis://localhost:6379/"))
+R = redis.from_url(os.environ.get("REDISTOGO_URL", "redis://localhost:6379/"))
 
 def cache_json(view):
     '''
