@@ -186,8 +186,7 @@ function plot(raceId) {
             chart.showBreaks(feed.racers[i]);
         }
         // handle search
-        // only search - 40 ms after the user finishes typing
-        // to reduce unnecessary type
+        // only search 40 ms after the user finishes typing to reduce unnecessary type
         var searchEvent;
         $('#search-input').on('input', function () { 
             var searchedName = $(this).val();

@@ -15,6 +15,8 @@ SPOT_POS_RE = re.compile(r'\);point = new google.maps.LatLng\( (?P<latitude>[\-\
 USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
 # icons trackleaders used for stopped dots
 STOP_ICONS = ('iconStop', 'iconTent')
+# RE for parsing route mile
+SPOT_MILE_RE = re.compile(r'Route mile (?P<mile>\d+)')
 
 
 def process_timestamp(ts_match):
@@ -79,6 +81,7 @@ def get_breaks(race, racer_id):
     as_date = make_datetime_converter()
     timestamps = parse_timestamps(racer_id, spot_feed)
     positions = list(SPOT_POS_RE.finditer(spot_feed, re.MULTILINE))
+    mile_markers = [int(matched.group('mile')) for matched in SPOT_MILE_RE.finditer(spot_feed, re.MULTILINE)]
     breaks = []
     tot_duration = 0
     for i, ts in enumerate(timestamps):
@@ -95,7 +98,8 @@ def get_breaks(race, racer_id):
             'end': break_end.isoformat(),
             'duration': duration,
             'lat': lat,
-            'lng': lng
+            'lng': lng,
+            'mile': mile_markers[i]
         })
     # calculate percentage
     for brk in breaks:
@@ -109,7 +113,7 @@ def get_breaks(race, racer_id):
 
 def get_racers(race_id):
     page = HTML(requests.get(TL_URL_TEMPL% race_id, headers={'User-Agent': USER_AGENT}).text)
-    racers = set(el.text for el in page.xpath('.//a[@title="Click for individual history"]'))
+    racers = set(el.text for el in page.xpath('.//a[@onmouseout]'))
     return list(racers)
 
 
