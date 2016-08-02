@@ -20,7 +20,6 @@ function createToolTip(brk, loc, breakId) {
     return "<div class='break-display' id='"+breakId+"' style='"+tooltipStyle+"'>"+
     "<b>How long</b>:&nbsp;"+brk.duration+"<br/>"+
     "<b>When</b>:&nbsp;"+toReadableDate(start)+"<br/>"+
-    "<b>Where</b>:&nbsp;"+loc+" (at route mile "+brk.mile.toString()+")<br/>"+ 
     "</div>";
 }
 
