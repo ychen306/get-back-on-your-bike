@@ -7,7 +7,7 @@ from lxml.etree import HTML
 # URL template for accessing spot records
 SPOT_URL_TEMPL = 'http://trackleaders.com/spot/%s/%s.js'
 # RE template for parsing spot timestamp
-SPOT_TS_RE_TEMPL = 'title: "%s - (?:(?P<days>\d+) days, )?(?:(?P<hours>\d+) hours, )?(?P<minutes>\d+) minutes ago",[^\n\r]* icon: (?P<icon>\w+)}'
+SPOT_TS_RE_TEMPL = '"%s - (?:(?P<days>\d+) days, )?(?:(?P<hours>\d+) hours, )?(?P<minutes>\d+) minutes ago",.* icon: (?P<icon>\w+)}'
 # Trackleader URL template
 TL_URL_TEMPL = "http://trackleaders.com/%sf.php"
 # RE for parsing spot position (latLong pair)
@@ -83,6 +83,8 @@ def get_breaks(race, racer_id):
     for i, ts in enumerate(timestamps):
         if ts['icon'] not in STOP_ICONS or i == len(timestamps) - 1:
             continue
+        if i >= len(positions):
+            break
         matched_pos = positions[i] 
         break_start, break_end = as_date(ts), as_date(timestamps[i+1])
         duration = (break_end - break_start).total_seconds()
