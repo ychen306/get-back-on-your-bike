@@ -16,7 +16,7 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko
 MILE_RE = re.compile(r'Route mile (?P<mile>.*) mi')
 MIN_STOP_TIME = timedelta(minutes=5)
 # if a racer's average speed (MPH) between two points is lower than this, we consider it a break
-STOP_SPEED = 1.0
+STOP_SPEED = 2.0
 
 def process_timestamp(ts_match):
     ts = ts_match.groupdict()
