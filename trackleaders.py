@@ -7,14 +7,16 @@ from lxml.etree import HTML
 # URL template for accessing spot records
 SPOT_URL_TEMPL = 'http://trackleaders.com/spot/%s/%s.js'
 # RE template for parsing spot timestamp
-SPOT_TS_RE_TEMPL = '"%s - (?:(?P<days>\d+) days, )?(?:(?P<hours>\d+) hours, )?(?P<minutes>\d+) minutes ago",.* icon: (?P<icon>\w+)}'
+SPOT_TS_RE_TEMPL = '"%s - (?:(?P<days>\d+) days, )?(?:(?P<hours>\d+) hours, )?(?P<minutes>\d+) minutes ago",.* icon:'
 # Trackleader URL template
 TL_URL_TEMPL = "http://trackleaders.com/%sf.php"
 # RE for parsing spot position (latLong pair)
 SPOT_POS_RE = re.compile(r'\);point = new google.maps.LatLng\( (?P<latitude>[\-\d.]+), (?P<longitude>[\-\d.]+)\)')
 USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'
-# icons trackleaders used for stopped dots
-STOP_ICONS = ('iconStop', 'iconTent')
+MILE_RE = re.compile(r'Route mile (?P<mile>.*) mi')
+MIN_STOP_TIME = timedelta(minutes=5)
+# if a racer's average speed (MPH) between two points is lower than this, we consider it a break
+STOP_SPEED = 1.0
 
 def process_timestamp(ts_match):
     ts = ts_match.groupdict()
@@ -78,16 +80,29 @@ def get_breaks(race, racer_id):
     as_date = make_datetime_converter()
     timestamps = parse_timestamps(racer_id, spot_feed)
     positions = list(SPOT_POS_RE.finditer(spot_feed, re.MULTILINE))
+    miles = [float(matched.group('mile'))
+                for matched in  MILE_RE.finditer(spot_feed, re.MULTILINE)
+                if matched]
     breaks = []
     tot_duration = 0
     for i, ts in enumerate(timestamps):
-        if ts['icon'] not in STOP_ICONS or i == len(timestamps) - 1:
-            continue
-        if i >= len(positions):
+        if i >= len(positions) or i >= len(timestamps)-1:
             break
+        ts2 = timestamps[i+1]
         matched_pos = positions[i] 
-        break_start, break_end = as_date(ts), as_date(timestamps[i+1])
-        duration = (break_end - break_start).total_seconds()
+        break_start, break_end = as_date(ts), as_date(ts2)
+        mile1, mile2 = miles[i], miles[i+1]
+
+        delta = break_end - break_start
+        if delta < MIN_STOP_TIME:
+            continue
+
+        duration = delta.total_seconds()
+        duration_hr = float(duration) / 3600
+        avg_mph = (mile2-mile1) / duration_hr
+        if avg_mph > STOP_SPEED:
+            continue
+
         tot_duration += duration
         lat = float(matched_pos.group('latitude'))
         lng = float(matched_pos.group('longitude'))
@@ -98,6 +113,24 @@ def get_breaks(race, racer_id):
             'lat': lat,
             'lng': lng
         })
+
+    if breaks:
+        # coalesce contiguous breaks
+        coalesced_breaks = [breaks[0]]
+        prev = breaks[0]
+        i = 1
+        while i < len(breaks):
+            cur = breaks[i]
+            if cur['start'] == prev['end']:
+                prev['end'] = cur['end']
+                prev['duration'] += cur['duration']
+            else:
+                coalesced_breaks.append(cur)
+                prev = cur
+            i += 1
+
+        breaks = coalesced_breaks
+
     # calculate percentage
     for brk in breaks:
         dur = brk['duration']

@@ -30,7 +30,6 @@ def cache_json(view):
         else:
              resp = view(*args, **kwargs)
              R.setex(request.url, resp.data, CACHE_DUR)
-        resp.cache_control.max_age = CACHE_DUR
         return resp
  
     return decorated_view
