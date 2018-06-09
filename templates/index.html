@@ -26,6 +26,16 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
         <script src="https://www.google.com/jsapi?autoload={'modules':[{'name':'visualization','version':'1.1','packages':['timeline']}]}"></script>
         <script src="/static/main.js?x={{ main_digest }}"></script> 
+
+        <style>
+          .google-visualization-tooltip {
+            opacity: 0 !important;
+            max-width: 300px !important;
+          }
+          .google-visualization-tooltip[clone] {
+            opacity: 1 !important;
+          }
+        </style>
     </head>
 
     <body>

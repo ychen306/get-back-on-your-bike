@@ -2,7 +2,6 @@ google.setOnLoadCallback(main);
 
 var GOOGLE_REV_GEOCODE_URL = 'https://maps.googleapis.com/maps/api/geocode/json'
 
-
 function toReadableDate(date) {
   var hours = date.getHours().toString();
   var minutes = date.getMinutes().toString();
@@ -13,13 +12,16 @@ function toReadableDate(date) {
 }
 
 
-function createToolTip(brk, loc, breakId) {
+function createToolTip(brk, loc, latlng, breakId) {
   var start = new Date(brk.start);
+  // add a link to google map so the user can see where it is
+  var locWithLink = '<a target="_blank" href="https://www.google.com/maps/?q='+ latlng+'">'+loc+'</a>';
   height = Math.floor(loc.length*2.5 + 70);
   var tooltipStyle = 'padding:5px 5px 5px 5px; width: 240px; height: '+height+'px;'
     return "<div class='break-display' id='"+breakId+"' style='"+tooltipStyle+"'>"+
     "<b>How long</b>:&nbsp;"+brk.duration+"<br/>"+
     "<b>When</b>:&nbsp;"+toReadableDate(start)+"<br/>"+
+    "<b>Where</b>:&nbsp;"+locWithLink+"<br/>"+
     "</div>";
 }
 
@@ -54,7 +56,7 @@ function makeChart(container, raceId, numRacers) {
       singleColor: '#8d8',
       showBarLabels: false
     },
-    tooltip: {isHtml: true},
+    tooltip: {isHtml: true}
   };
   var geocode = function(lat, lng, callback) {
     /*
@@ -68,7 +70,7 @@ function makeChart(container, raceId, numRacers) {
       var ok = cached[1];
       callback(results, ok);
     } else {
-      var url = GOOGLE_REV_GEOCODE_URL+"?latlng="+latlng;
+      var url = GOOGLE_REV_GEOCODE_URL+"?latlng="+latlng+"&key="+GOOGLE_API_KEY;
       return $.getJSON(url, function(resp) {
         var ok = (resp.results != undefined && resp.results.length > 0);
         // save to cache
@@ -80,10 +82,32 @@ function makeChart(container, raceId, numRacers) {
       });
     }
   }
-  var handleMouseover = function(e) {
-    /*
-     * deal with mouseover here
-     */
+
+  var actualToolTip = undefined;
+  var toolTipRemoval = undefined;
+  var showingToolTip = function() {
+    return actualToolTip != undefined && actualToolTip.parentNode != undefined;
+  };
+  var removeToolTip = function() {
+    return actualToolTip.parentNode.removeChild(actualToolTip);
+  };
+  var keepToolTip = function() {
+    if (toolTipRemoval != undefined)
+      clearTimeout(toolTipRemoval);
+  };
+  var handleSelect = function() {
+    if (showingToolTip())
+      removeToolTip();
+
+    var tooltip = document.querySelector('.google-visualization-tooltip:not([clone])');
+
+    actualToolTip = tooltip.cloneNode(true);
+    actualToolTip.setAttribute('clone', true);
+    actualToolTip.style.pointerEvents = 'auto';
+    tooltip.parentNode.insertBefore(actualToolTip, tooltip);
+    actualToolTip.parentNode.addEventListener('mouseover', keepToolTip);
+    actualToolTip.parentNode.addEventListener('mouseout', removeToolTipWithDelay);
+
     var selected = $('.break-display')[0];
     var breakId = selected.id;
     var brk = breakCache[breakId]; 
@@ -93,10 +117,21 @@ function makeChart(container, raceId, numRacers) {
     geocode(lat, lng, function(results, ok) {
       if (ok) {
         var loc = results[0].formatted_address;
-        var newToolTip = createToolTip(brk, loc, breakId);
+        var latlng = lat+","+lng;
+        var newToolTip = createToolTip(brk, loc, latlng, breakId);
         $(selected).html(newToolTip);
       }
     });
+  };
+
+  var removeToolTipWithDelay = function() {
+    if (!showingToolTip())
+      return;
+    // remove tool tip shortly after the user's leaves the break
+    toolTipRemoval = setTimeout(function() {
+      removeToolTip();
+      toolTipRemoval = undefined;
+    }, 200);
   };
 
   var updateChart = function() {
@@ -115,7 +150,8 @@ function makeChart(container, raceId, numRacers) {
     if (numFetched == numRacers) {
       $('#progress').hide();
       $('#search').show();
-      google.visualization.events.addListener(chart, 'onmouseover', handleMouseover);
+      google.visualization.events.addListener(chart, 'onmouseover', handleSelect);
+      google.visualization.events.addListener(chart, 'onmouseout', removeToolTipWithDelay);
       if (dataTable.getNumberOfRows() == 0) {
         // nothing to show
         $(container).hide();
@@ -135,7 +171,7 @@ function makeChart(container, raceId, numRacers) {
       var start = new Date(brk.start);
       var end = new Date(brk.end);
       var loc = brk.lat+", "+brk.lng;
-      var tooltip = createToolTip(brk, loc, breakId);
+      var tooltip = createToolTip(brk, loc, loc/*latlng*/, breakId);
       dataTable.addRow([brk.racerName, brk.totalDuration, tooltip, start, end]);
     }
   };
@@ -185,7 +221,6 @@ function plot(raceId) {
     for (var i = 0; i < feed.racers.length; i++) {
       chart.showBreaks(feed.racers[i]);
     }
-    console.log(query);
     if (query !== null) {
       chart.filterByName(query);
     }
