@@ -89,11 +89,17 @@ function makeChart(container, raceId, numRacers) {
     return actualToolTip != undefined && actualToolTip.parentNode != undefined;
   };
   var removeToolTip = function() {
+    if (toolTipRemoval != undefined) {
+      clearTimeout(toolTipRemoval);
+      toolTipRemoval = undefined;
+    }
     return actualToolTip.parentNode.removeChild(actualToolTip);
   };
   var keepToolTip = function() {
-    if (toolTipRemoval != undefined)
+    if (toolTipRemoval != undefined) {
       clearTimeout(toolTipRemoval);
+      toolTipRemoval = undefined;
+    }
   };
   var handleSelect = function() {
     if (showingToolTip())
@@ -130,8 +136,7 @@ function makeChart(container, raceId, numRacers) {
     // remove tool tip shortly after the user's leaves the break
     toolTipRemoval = setTimeout(function() {
       removeToolTip();
-      toolTipRemoval = undefined;
-    }, 200);
+    }, 600);
   };
 
   var updateChart = function() {
