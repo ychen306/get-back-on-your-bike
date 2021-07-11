@@ -47,7 +47,7 @@ def make_datetime_converter():
     '''
     convert timestamp to a datetime
     '''
-    now = datetime.now()
+    now = datetime(2016, 9, 13, 11, 18) # trackleaders archive datetime
     def converter(ts):
         delta = timedelta(days=ts['days'],
                 hours=ts['hours'],
